@@ -142,6 +142,28 @@ const dict: Dict = {
   'intro.faq': { en: 'FAQ', fa: 'پرسش‌های متداول' },
   'intro.entry': { en: 'Application entry', fa: 'ورود به اپلیکیشن' },
   'intro.status': { en: 'Release status', fa: 'وضعیت انتشار' },
+
+  'entry.protectApp': { en: 'Protect this project', fa: 'محافظت از این پروژه' },
+  'entry.protectNote': {
+    en: 'This password protects only this project. Each YX project has its own independent password.',
+    fa: 'این رمز فقط از این پروژه محافظت می‌کند. هر پروژه YX رمز مستقل خود را دارد.',
+  },
+  'entry.choosePassword': { en: 'Private password', fa: 'رمز خصوصی' },
+  'entry.confirmPassword': { en: 'Confirm password', fa: 'تأیید رمز' },
+  'entry.setPassword': { en: 'Set password', fa: 'تنظیم رمز' },
+  'entry.skipPassword': { en: 'Continue without a password', fa: 'بدون رمز ادامه دهید' },
+  'entry.skipNote': {
+    en: 'You can add a private password later from this project’s settings.',
+    fa: 'بعداً می‌توانید از تنظیمات این پروژه رمز خصوصی اضافه کنید.',
+  },
+  'entry.mismatch': { en: 'Passwords do not match', fa: 'رمزها مطابقت ندارند' },
+  'entry.emptyPassword': { en: 'Enter a password to continue', fa: 'برای ادامه رمز وارد کنید' },
+  'entry.forgotNote': {
+    en: 'Resetting removes the current password. You can set a new one immediately from settings.',
+    fa: 'بازنشانی، رمز فعلی را حذف می‌کند. می‌توانید بلافاصله از تنظیمات رمز جدیدی تنظیم کنید.',
+  },
+  'entry.resetLock': { en: 'Reset lock', fa: 'بازنشانی قفل' },
+  'entry.back': { en: 'Back', fa: 'بازگشت' },
 };
 
 interface LanguageCtx {
