@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://yx.example.com/</loc></url>
+  <url><loc>https://yx.example.com/about</loc></url>
+  <url><loc>https://yx.example.com/technology</loc></url>
+  <url><loc>https://yx.example.com/divisions/intelligence</loc></url>
+  <url><loc>https://yx.example.com/divisions/engineering</loc></url>
+  <url><loc>https://yx.example.com/divisions/research</loc></url>
+  <url><loc>https://yx.example.com/divisions/ventures</loc></url>
+  <url><loc>https://yx.example.com/projects</loc></url>
+  <url><loc>https://yx.example.com/labs</loc></url>
+  <url><loc>https://yx.example.com/journal</loc></url>
+  <url><loc>https://yx.example.com/roadmap</loc></url>
+  <url><loc>https://yx.example.com/innovation</loc></url>
+  <url><loc>https://yx.example.com/contact</loc></url>
+</urlset>

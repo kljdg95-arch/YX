@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yx.example.com/sitemap.xml
