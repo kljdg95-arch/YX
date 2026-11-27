@@ -2,14 +2,13 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Settings, Lock, Power, Loader2, X } from 'lucide-react';
 import { useLang } from '@/i18n/language';
-import { useProjectAuth } from '@/hooks/useProjectAuth';
 import { useProjectLock } from '@/hooks/useProjectLock';
 import ProjectSignIn from '@/components/ProjectSignIn';
 import ProjectLockGate from '@/components/ProjectLockGate';
 import type { ProjectId } from '@/lib/projectSupabase';
 
-// Per-project application frame. Everything inside is only rendered after this
-// project's own sign-in succeeds and (optionally) its private lock is unlocked.
+// Per-project application frame. Everything inside is only rendered after the
+// project's private lock is unlocked (or if no lock was configured).
 export default function AppShell({
   project,
   appName,
@@ -38,8 +37,7 @@ function ProjectAppInner({
   children: () => ReactNode;
 }) {
   const { t, dir } = useLang();
-  const auth = useProjectAuth(project);
-  const lock = useProjectLock(project, !!auth.user);
+  const lock = useProjectLock(project, true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
@@ -47,9 +45,9 @@ function ProjectAppInner({
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!auth.user) lock.lockNow();
+    if (!lock.unlocked) lock.lockNow();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.user]);
+  }, [lock.unlocked]);
 
   const act = async (fn: () => Promise<boolean>, ok: string) => {
     setBusy(true);
@@ -80,9 +78,6 @@ function ProjectAppInner({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex text-xs text-muted">
-              {auth.user?.email}
-            </span>
             <button
               onClick={() => setSettingsOpen((o) => !o)}
               aria-expanded={settingsOpen}
@@ -98,7 +93,6 @@ function ProjectAppInner({
       {settingsOpen && (
         <div className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-line bg-surface p-5 shadow-xl">
           <h2 className="text-sm font-semibold">{t('common.settings')}</h2>
-          <p className="mt-1 text-xs text-muted">{auth.user?.email}</p>
           <p className="mt-3 text-xs text-muted">{t('token.note')}</p>
 
           <hr className="my-4 border-line" />
@@ -138,8 +132,8 @@ function ProjectAppInner({
                   className="w-full rounded-xl border border-line bg-transparent px-3 py-2 text-xs outline-none focus:border-[var(--accent)]"
                 />
                 <button
-                  disabled={busy || !next.length}
-                  onClick={() => act(() => lock.disable(current).then(async (removed) => removed ? lock.enable(next) : false), t('common.save'))}
+                  disabled={busy || !next.length || !current.length}
+                  onClick={() => act(() => lock.change(current, next), t('common.save'))}
                   className="btn-primary !py-2 justify-center text-xs disabled:opacity-60"
                 >
                   {busy && <Loader2 size={13} className="animate-spin" aria-hidden="true" />}
@@ -174,11 +168,6 @@ function ProjectAppInner({
               </>
             )}
           </div>
-
-          <hr className="my-4 border-line" />
-          <button onClick={() => auth.signOut()} className="w-full text-left text-xs text-muted transition-colors hover:text-[var(--ink)]">
-            {t('common.signOut')}
-          </button>
         </div>
       )}
 
@@ -187,6 +176,6 @@ function ProjectAppInner({
   );
 
   // The lock gate itself renders the app once unlocked; until then it shows the
-  // shared lock screen bound to this account + this project.
+  // shared lock screen bound to this project.
   return <ProjectLockGate appName={appName} lock={lock}>{app}</ProjectLockGate>;
 }

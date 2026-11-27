@@ -6,41 +6,49 @@ export interface ProjectAuth {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<string | null>;
-  signUp: (email: string, password: string) => Promise<string | null>;
-  signOut: () => Promise<void>;
   reload: () => Promise<void>;
 }
 
+// Silent anonymous auth: each project client automatically obtains a session
+// without asking the user for email or password. The session is only used for
+// cloud data operations (YXAI projects, YQRO library). The private lock is
+// entirely client-side and does not depend on this session.
 export function useProjectAuth(project: ProjectId): ProjectAuth {
   const client = projectClients[project];
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     client.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+      if (!mounted) return;
+      if (data.session) {
+        setSession(data.session);
+        setLoading(false);
+        return;
+      }
+      // No existing session — try anonymous sign-in silently.
+      client.auth.signInAnonymously().then(({ data: anonData, error }) => {
+        if (!mounted) return;
+        if (!error && anonData.session) {
+          setSession(anonData.session);
+        }
+        setLoading(false);
+      }).catch(() => {
+        if (mounted) setLoading(false);
+      });
+    }).catch(() => {
+      if (mounted) setLoading(false);
+    });
 
     const { data: sub } = client.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
+      if (mounted) setSession(s);
     });
-    return () => sub.subscription.unsubscribe();
-  }, [client]);
-
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await client.auth.signInWithPassword({ email, password });
-    return error ? error.message : null;
-  }, [client]);
-
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await client.auth.signUp({ email, password });
-    return error ? error.message : null;
-  }, [client]);
-
-  const signOut = useCallback(async () => {
-    await client.auth.signOut();
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, [client]);
 
   const reload = useCallback(async () => {
@@ -52,9 +60,6 @@ export function useProjectAuth(project: ProjectId): ProjectAuth {
     session,
     user: session?.user ?? null,
     loading,
-    signIn,
-    signUp,
-    signOut,
     reload,
   };
 }
